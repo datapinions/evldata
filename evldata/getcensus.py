@@ -1,7 +1,6 @@
-
 import logging
-from pathlib import Path
 from argparse import ArgumentParser
+from pathlib import Path
 
 import censusdis.data as ced
 from censusdis.datasets import ACS5
@@ -9,11 +8,11 @@ from censusdis.states import ALL_STATES_AND_DC
 
 import evldata.variables as var
 
-
 logger = logging.getLogger(__name__)
 
 
 dataset = ACS5
+
 
 def main():
     parser = ArgumentParser()
@@ -55,15 +54,15 @@ def main():
         download_variables=variables,
         leaves_of_group=leaves_of_group,
         state=ALL_STATES_AND_DC,
-        county='*',
-        tract='*',
+        county="*",
+        tract="*",
     )
 
     # Filter out the individual race counts under
     # the Hispanic and Latino side of the tree.
     df = df[
-        ['STATE', 'COUNTY', 'TRACT', var.MEDIAN_HOUSEHOLD_INCOME_FOR_RENTERS] +
-        [col for col in df.columns if col <= var.TOTAL_HISPANIC_OR_LATINO]
+        ["STATE", "COUNTY", "TRACT", var.MEDIAN_HOUSEHOLD_INCOME_FOR_RENTERS]
+        + [col for col in df.columns if col <= var.TOTAL_HISPANIC_OR_LATINO]
     ]
 
     output_path.parent.mkdir(exist_ok=True)

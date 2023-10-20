@@ -1,15 +1,13 @@
-
 import logging
-from pathlib import Path
 from argparse import ArgumentParser
+from pathlib import Path
+
 import pandas as pd
-import censusdis.states
 
 logger = logging.getLogger(__name__)
 
 
 def main():
-
     parser = ArgumentParser()
 
     parser.add_argument(
@@ -35,40 +33,37 @@ def main():
 
     logger.info(f"Reading census file `{args.census}`")
     df_census = pd.read_csv(
-        args.census,
-        header=0,
-        dtype={'STATE': str, 'COUNTY': str, 'TRACT': str}
+        args.census, header=0, dtype={"STATE": str, "COUNTY": str, "TRACT": str}
     )
 
     logger.info(f"Reading vendor file `{args.census}`")
-    df_vendor = pd.read_csv(
-        args.vendor,
-        header=0,
-        dtype={'fips': str, 'cofips': str}
-    )
+    df_vendor = pd.read_csv(args.vendor, header=0, dtype={"fips": str, "cofips": str})
 
     # Split up the fips in the vendor file.
-    df_vendor['STATE'] = df_vendor['fips'].apply(lambda fips: fips[:2])
-    df_vendor['COUNTY'] = df_vendor['fips'].apply(lambda fips: fips[2:5])
-    df_vendor['TRACT'] = df_vendor['fips'].apply(lambda fips: fips[5:])
+    df_vendor["STATE"] = df_vendor["fips"].apply(lambda fips: fips[:2])
+    df_vendor["COUNTY"] = df_vendor["fips"].apply(lambda fips: fips[2:5])
+    df_vendor["TRACT"] = df_vendor["fips"].apply(lambda fips: fips[5:])
 
     # Merge the two.
     df_merged = df_vendor.merge(
         df_census,
-        on=['STATE', 'COUNTY', 'TRACT'],
+        on=["STATE", "COUNTY", "TRACT"],
     )
 
     df_merged = df_merged[
-        ['STATE', 'COUNTY', 'TRACT'] + [col for col in df_merged.columns if col not in ['STATE', 'COUNTY', 'TRACT']]
+        ["STATE", "COUNTY", "TRACT"]
+        + [col for col in df_merged.columns if col not in ["STATE", "COUNTY", "TRACT"]]
     ]
 
     # Now construct the fractions.
-    variable_total_population = 'B03002_001E'
-    group = 'B03002'
+    variable_total_population = "B03002_001E"
+    group = "B03002"
 
     for variable in df_census.columns:
         if variable.startswith(group) and variable != variable_total_population:
-            df_merged[f'frac_{variable}'] = df_merged[variable] / df_merged[variable_total_population]
+            df_merged[f"frac_{variable}"] = (
+                df_merged[variable] / df_merged[variable_total_population]
+            )
 
     output_path.parent.mkdir(exist_ok=True)
     df_merged.to_csv(output_path, index=False)
