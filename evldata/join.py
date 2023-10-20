@@ -3,8 +3,10 @@ import logging
 from pathlib import Path
 from argparse import ArgumentParser
 import pandas as pd
+import censusdis.states
 
 logger = logging.getLogger(__name__)
+
 
 def main():
 
@@ -59,6 +61,14 @@ def main():
     df_merged = df_merged[
         ['STATE', 'COUNTY', 'TRACT'] + [col for col in df_merged.columns if col not in ['STATE', 'COUNTY', 'TRACT']]
     ]
+
+    # Now construct the fractions.
+    variable_total_population = 'B03002_001E'
+    group = 'B03002'
+
+    for variable in df_census.columns:
+        if variable.startswith(group) and variable != variable_total_population:
+            df_merged[f'frac_{variable}'] = df_merged[variable] / df_merged[variable_total_population]
 
     output_path.parent.mkdir(exist_ok=True)
     df_merged.to_csv(output_path, index=False)

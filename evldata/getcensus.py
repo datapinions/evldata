@@ -37,8 +37,13 @@ def main():
     vintage = args.vintage
     output_path = Path(args.output)
 
-    variables = None
+    # Get all the leaf populations from the race and
+    # ethnicity table and also get the total variable.
     leaves_of_group = 'B03002'
+    variables = [
+        'B03002_001E',  # total population
+        'B03002_012E',  # Hispanic or Latino total
+    ]
 
     df = ced.download(
         dataset,
@@ -49,6 +54,10 @@ def main():
         county='*',
         tract='*',
     )
+
+    # Filter out the individual race counts under
+    # the Hispanic and Latino side of the tree.
+    df = df[['STATE', 'COUNTY', 'TRACT'] + [col for col in df.columns if col <= 'B03002_012E']]
 
     output_path.parent.mkdir(exist_ok=True)
 
