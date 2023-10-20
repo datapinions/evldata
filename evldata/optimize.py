@@ -4,13 +4,15 @@ from typing import Any, Dict, Iterable, Optional
 from pathlib import Path
 from argparse import ArgumentParser, BooleanOptionalAction
 import pandas as pd
-from matplotlib.ticker import PercentFormatter
+from matplotlib.ticker import FuncFormatter, PercentFormatter
 import xgboost
 from scipy import stats
 from sklearn.model_selection import RandomizedSearchCV
+import yaml
 import censusdis.data as ced
 from censusdis.datasets import ACS5
 from impactchart.model import XGBoostImpactModel
+import evldata.variables as var
 
 
 logger = logging.getLogger(__name__)
@@ -57,6 +59,11 @@ def optimize(
 
     # Build impact charts.
 
+    all_variables = pd.concat([
+        ced.variables.all_variables(ACS5, year, var.GROUP_HISPANIC_OR_LATINO_ORIGIN_BY_RACE),
+        ced.variables.all_variables(ACS5, year, var.GROUP_MEDIAN_HOUSEHOLD_INCOME_BY_TENURE),
+    ])
+
     impact_model = XGBoostImpactModel(estimator_kwargs=result['params'])
 
     impact_model.fit(X, y)
@@ -69,17 +76,16 @@ def optimize(
         ),
     )
 
-    all_variables = ced.variables.all_variables(ACS5, year, 'B03002')
+    dollar_formatter = FuncFormatter(
+        lambda d, pos: f"\\${d:,.0f}" if d >= 0 else f"(\\${-d:,.0f})"
+    )
 
     for feature, (fig, ax) in impact_charts.items():
 
         feature_base = feature.replace("frac_", "")
 
         label = all_variables[all_variables["VARIABLE"] == feature_base]["LABEL"].iloc[0]
-        label = label.replace("Estimate!!", "")
-        label = label.replace("Total:!!", "")
-        label = label.replace(":!!", "; ")
-        label = label.replace(":", "")
+        label = label.split("!!")[-1]
 
         impacted = y_col.replace("_", " ").title()
 
@@ -87,7 +93,14 @@ def optimize(
         ax.set_title(f"Impact of {label} on {impacted}")
         ax.set_xlabel(label)
         ax.set_ylabel("Impact")
-        ax.xaxis.set_major_formatter(PercentFormatter(1.0, decimals=0))
+
+        col_is_fractional = feature.startswith("frac_")
+
+        if col_is_fractional:
+            x_width = 1.0
+            ax.xaxis.set_major_formatter(PercentFormatter(1.0, decimals=0))
+        else:
+            ax.xaxis.set_major_formatter(dollar_formatter)
 
         logger.info(f"Saving impact chart for {feature}.")
         fig.savefig(Path('/var/tmp') / f'{feature}.jpg')
@@ -129,13 +142,12 @@ def main():
         dtype={'STATE': str, 'COUNTY': str, 'TRACT': str}
     )
 
-    variable_total_population = 'B03002_001E'
-    group = 'B03002'
-
     x_cols = [
+        var.MEDIAN_HOUSEHOLD_INCOME_FOR_RENTERS,
+    ] + [
         f'frac_{variable}'
         for variable in df.columns
-        if variable.startswith(group) and variable != variable_total_population
+        if variable.startswith(var.GROUP_HISPANIC_OR_LATINO_ORIGIN_BY_RACE) and variable != var.TOTAL_POPULATION
     ]
 
     y_col = "filing_rate"
@@ -153,10 +165,11 @@ def main():
 
     params = optimize(year, df, x_cols, y_col)
 
-    print(params)
-
     logger.info(f"Writing to output file `{output_path}`")
     output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    with open(output_path, "w") as f:
+        yaml.dump(params, f, sort_keys=True)
 
 
 if __name__ == "__main__":

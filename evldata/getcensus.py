@@ -7,6 +7,9 @@ import censusdis.data as ced
 from censusdis.datasets import ACS5
 from censusdis.states import ALL_STATES_AND_DC
 
+import evldata.variables as var
+
+
 logger = logging.getLogger(__name__)
 
 
@@ -39,10 +42,11 @@ def main():
 
     # Get all the leaf populations from the race and
     # ethnicity table and also get the total variable.
-    leaves_of_group = 'B03002'
+    leaves_of_group = var.GROUP_HISPANIC_OR_LATINO_ORIGIN_BY_RACE
     variables = [
-        'B03002_001E',  # total population
-        'B03002_012E',  # Hispanic or Latino total
+        var.MEDIAN_HOUSEHOLD_INCOME_FOR_RENTERS,
+        var.TOTAL_POPULATION,
+        var.TOTAL_HISPANIC_OR_LATINO,
     ]
 
     df = ced.download(
@@ -57,7 +61,10 @@ def main():
 
     # Filter out the individual race counts under
     # the Hispanic and Latino side of the tree.
-    df = df[['STATE', 'COUNTY', 'TRACT'] + [col for col in df.columns if col <= 'B03002_012E']]
+    df = df[
+        ['STATE', 'COUNTY', 'TRACT', var.MEDIAN_HOUSEHOLD_INCOME_FOR_RENTERS] +
+        [col for col in df.columns if col <= var.TOTAL_HISPANIC_OR_LATINO]
+    ]
 
     output_path.parent.mkdir(exist_ok=True)
 
