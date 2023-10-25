@@ -2,13 +2,6 @@
 PYTHON = python3.11
 LOGLEVEL = INFO
 
-# May want to override these to run for other counties.
-# Georgia
-STATE := 13
-# DeKalb
-COUNTY := 089
-
-
 # The data directory
 DATA_DIR := ./data
 
@@ -22,10 +15,14 @@ CENSUS_DATA := $(DATA_DIR)/acs5-2018.csv
 # Dataset of vendor data joined with census data.
 JOINED_DATA := $(DATA_DIR)/evl_census.csv
 
+# List of the counties with the most data.
+MOST_DATA := $(DATA_DIR)/most_data.csv
+
+TOP_N := 100
 
 .PHONY: all clean
 
-all: $(JOINED_DATA)
+all: $(JOINED_DATA) $(MOST_DATA)
 
 clean:
 	rm -rf $(DATA_DIR)
@@ -39,3 +36,6 @@ $(CENSUS_DATA):
 
 $(JOINED_DATA): $(EVL_VENDOR_DATA) $(CENSUS_DATA)
 	$(PYTHON) -m evldata.join --vendor $(EVL_VENDOR_DATA) --census $(CENSUS_DATA) -o $@
+
+$(MOST_DATA): $(JOINED_DATA)
+	$(PYTHON) -m evldata.top -n $(TOP_N) -o $@ $<
