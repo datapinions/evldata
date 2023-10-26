@@ -44,9 +44,10 @@ def main():
     leaves_of_group = var.GROUP_HISPANIC_OR_LATINO_ORIGIN_BY_RACE
     variables = [
         var.MEDIAN_HOUSEHOLD_INCOME_FOR_RENTERS,
-        var.TOTAL_POPULATION,
+        var.VARIABLE_TOTAL_POPULATION,
         var.TOTAL_HISPANIC_OR_LATINO,
-    ]
+        var.VARIABLE_TOTAL_RENTERS,
+    ] + var.VARIABLES_FOR_RENTERS
 
     df = ced.download(
         dataset,
@@ -63,6 +64,7 @@ def main():
     df = df[
         ["STATE", "COUNTY", "TRACT", var.MEDIAN_HOUSEHOLD_INCOME_FOR_RENTERS]
         + [col for col in df.columns if col <= var.TOTAL_HISPANIC_OR_LATINO]
+        + [var.VARIABLE_TOTAL_RENTERS] + var.VARIABLES_FOR_RENTERS
     ]
 
     output_path.parent.mkdir(exist_ok=True)
