@@ -35,6 +35,10 @@ def main():
     logger.info(f"Reading vendor file `{args.vendor}`")
     df_vendor = pd.read_csv(args.vendor, header=0, dtype={"fips": str, "cofips": str})
 
+    # Note that we are not using any weights here. These probably should
+    # be population weighted and use statsmodels.stats.weightstats.DescrStatsW
+    # or similar. We should make that change if we want to use these numbers
+    # for anything but the coarsest of manual examination.
     df_summary = df_vendor.groupby('cofips')[
         ['filing_rate', 'threatened_rate', 'judgement_rate']
     ].describe().stack().reset_index().rename(columns={'level_1': 'statistic'})
