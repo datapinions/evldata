@@ -39,7 +39,7 @@ def main():
         args.census, header=0, dtype={"STATE": str, "COUNTY": str, "TRACT": str}
     )
 
-    logger.info(f"Reading vendor file `{args.census}`")
+    logger.info(f"Reading vendor file `{args.vendor}`")
     df_vendor = pd.read_csv(args.vendor, header=0, dtype={"fips": str, "cofips": str})
 
     # Split up the fips in the vendor file.
