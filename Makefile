@@ -8,7 +8,8 @@ DATA_DIR := ./data
 # A working directory
 WORKING_DIR := ./working
 
-# The vendor data published by the Eviction Lab at Princeton
+# The vendor data published by the Eviction Lab at Princeton.
+# See details at https://data-downloads.evictionlab.org/#data-for-analysis/.
 EVL_VENDOR_DATA := $(DATA_DIR)/tract_proprietary_valid_2000_2018.csv
 EVL_VENDOR_DATA_URL := https://eviction-lab-data-downloads.s3.amazonaws.com/data-for-analysis/tract_proprietary_valid_2000_2018.csv
 
