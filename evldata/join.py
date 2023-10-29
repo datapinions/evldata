@@ -50,12 +50,12 @@ def main():
     # Merge the two.
     df_merged = df_vendor.merge(
         df_census,
-        on=["STATE", "COUNTY", "TRACT"],
+        on=["year", "STATE", "COUNTY", "TRACT"],
     )
 
     df_merged = df_merged[
-        ["STATE", "COUNTY", "TRACT"]
-        + [col for col in df_merged.columns if col not in ["STATE", "COUNTY", "TRACT"]]
+        ["STATE", "COUNTY", "TRACT", "year"]
+        + [col for col in df_merged.columns if col not in ["STATE", "COUNTY", "TRACT", "year"]]
     ]
 
     # Now construct the fractions.
