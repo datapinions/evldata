@@ -4,6 +4,9 @@ from pathlib import Path
 
 import pandas as pd
 
+import evldata.variables as var
+
+
 logger = logging.getLogger(__name__)
 
 
@@ -36,7 +39,7 @@ def main():
         args.census, header=0, dtype={"STATE": str, "COUNTY": str, "TRACT": str}
     )
 
-    logger.info(f"Reading vendor file `{args.census}`")
+    logger.info(f"Reading vendor file `{args.vendor}`")
     df_vendor = pd.read_csv(args.vendor, header=0, dtype={"fips": str, "cofips": str})
 
     # Split up the fips in the vendor file.
@@ -56,13 +59,18 @@ def main():
     ]
 
     # Now construct the fractions.
-    variable_total_population = "B03002_001E"
-    group = "B03002"
 
     for variable in df_census.columns:
-        if variable.startswith(group) and variable != variable_total_population:
+        if (
+            variable.startswith(var.GROUP_POPULATION)
+            and variable != var.VARIABLE_TOTAL_POPULATION
+        ):
             df_merged[f"frac_{variable}"] = (
-                df_merged[variable] / df_merged[variable_total_population]
+                df_merged[variable] / df_merged[var.VARIABLE_TOTAL_POPULATION]
+            )
+        elif variable in var.VARIABLES_FOR_RENTERS:
+            df_merged[f"frac_{variable}"] = (
+                df_merged[variable] / df_merged[var.VARIABLE_TOTAL_RENTERS]
             )
 
     output_path.parent.mkdir(exist_ok=True)

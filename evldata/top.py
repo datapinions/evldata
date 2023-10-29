@@ -17,20 +17,9 @@ def main():
         default="WARNING",
     )
 
-    parser.add_argument(
-        "-s", "--state", required=True, type=str, help="State FIPS code, e.g. 34 for NJ"
-    )
-    parser.add_argument(
-        "-c",
-        "--county",
-        required=True,
-        type=str,
-        help="County fips code, three digits with leading zeros.",
-    )
-
+    parser.add_argument("-n", type=int, default=50, help="Output the top n for this n.")
     parser.add_argument("-o", "--output", required=True, type=str, help="Output file.")
-
-    parser.add_argument("input", help="Input file. The output of join.py.")
+    parser.add_argument("data", type=str, help="Input data file.")
 
     args = parser.parse_args()
 
@@ -39,22 +28,26 @@ def main():
     logging.basicConfig(level=level)
     logger.setLevel(level)
 
-    state = args.state
-    county = args.county
-    input_path = Path(args.input)
+    n = args.n
+    input_path = Path(args.data)
     output_path = Path(args.output)
 
     logger.info(f"Reading input file `{input_path}`")
+    logger.info(f"Writing output file `{output_path}`")
 
     df = pd.read_csv(
         input_path, header=0, dtype={"STATE": str, "COUNTY": str, "TRACT": str}
+    ).rename({"cofips": "COFIPS"}, axis="columns")
+
+    counts = (
+        df.groupby(["COFIPS", "STATE", "COUNTY"])["TRACT"]
+        .count()
+        .rename("TRACT_COUNT")
+        .nlargest(n)
     )
 
-    df = df[(df["STATE"] == state) & (df["COUNTY"] == county)]
-
-    logger.info(f"Writing to output file `{output_path}`")
     output_path.parent.mkdir(exist_ok=True)
-    df.to_csv(output_path)
+    counts.to_csv(output_path, index=True)
 
 
 if __name__ == "__main__":

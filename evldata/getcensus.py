@@ -39,18 +39,27 @@ def main():
     vintage = args.vintage
     output_path = Path(args.output)
 
+    df = data_for_year(vintage)
+
+    output_path.parent.mkdir(exist_ok=True)
+
+    df.to_csv(output_path, index=False)
+
+
+def data_for_year(year: int):
     # Get all the leaf populations from the race and
     # ethnicity table and also get the total variable.
     leaves_of_group = var.GROUP_HISPANIC_OR_LATINO_ORIGIN_BY_RACE
     variables = [
         var.MEDIAN_HOUSEHOLD_INCOME_FOR_RENTERS,
-        var.TOTAL_POPULATION,
+        var.VARIABLE_TOTAL_POPULATION,
         var.TOTAL_HISPANIC_OR_LATINO,
-    ]
+        var.VARIABLE_TOTAL_RENTERS,
+    ] + var.VARIABLES_FOR_RENTERS
 
     df = ced.download(
         dataset,
-        vintage,
+        year,
         download_variables=variables,
         leaves_of_group=leaves_of_group,
         state=ALL_STATES_AND_DC,
@@ -63,11 +72,11 @@ def main():
     df = df[
         ["STATE", "COUNTY", "TRACT", var.MEDIAN_HOUSEHOLD_INCOME_FOR_RENTERS]
         + [col for col in df.columns if col <= var.TOTAL_HISPANIC_OR_LATINO]
+        + [var.VARIABLE_TOTAL_RENTERS]
+        + var.VARIABLES_FOR_RENTERS
     ]
 
-    output_path.parent.mkdir(exist_ok=True)
-
-    df.to_csv(output_path, index=False)
+    return df
 
 
 if __name__ == "__main__":
