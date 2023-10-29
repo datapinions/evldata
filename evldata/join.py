@@ -59,10 +59,12 @@ def main():
     ]
 
     # Now construct the fractions.
-    group = "B03002"
 
     for variable in df_census.columns:
-        if variable.startswith(var.GROUP_POPULATION) and variable != var.VARIABLE_TOTAL_POPULATION:
+        if (
+            variable.startswith(var.GROUP_POPULATION)
+            and variable != var.VARIABLE_TOTAL_POPULATION
+        ):
             df_merged[f"frac_{variable}"] = (
                 df_merged[variable] / df_merged[var.VARIABLE_TOTAL_POPULATION]
             )

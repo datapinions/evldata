@@ -39,7 +39,12 @@ def main():
         input_path, header=0, dtype={"STATE": str, "COUNTY": str, "TRACT": str}
     ).rename({"cofips": "COFIPS"}, axis="columns")
 
-    counts = df.groupby(["COFIPS", "STATE", "COUNTY"])["TRACT"].count().rename('TRACT_COUNT').nlargest(n)
+    counts = (
+        df.groupby(["COFIPS", "STATE", "COUNTY"])["TRACT"]
+        .count()
+        .rename("TRACT_COUNT")
+        .nlargest(n)
+    )
 
     output_path.parent.mkdir(exist_ok=True)
     counts.to_csv(output_path, index=True)

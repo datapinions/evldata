@@ -4,8 +4,6 @@ from pathlib import Path
 
 import pandas as pd
 
-import evldata.variables as var
-
 
 logger = logging.getLogger(__name__)
 
@@ -39,9 +37,15 @@ def main():
     # be population weighted and use statsmodels.stats.weightstats.DescrStatsW
     # or similar. We should make that change if we want to use these numbers
     # for anything but the coarsest of manual examination.
-    df_summary = df_vendor.groupby('cofips')[
-        ['filing_rate', 'threatened_rate', 'judgement_rate']
-    ].describe().stack().reset_index().rename(columns={'level_1': 'statistic'})
+    df_summary = (
+        df_vendor.groupby("cofips")[
+            ["filing_rate", "threatened_rate", "judgement_rate"]
+        ]
+        .describe()
+        .stack()
+        .reset_index()
+        .rename(columns={"level_1": "statistic"})
+    )
 
     output_path.parent.mkdir(exist_ok=True)
     df_summary.to_csv(output_path, index=False)
