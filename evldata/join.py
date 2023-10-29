@@ -55,7 +55,11 @@ def main():
 
     df_merged = df_merged[
         ["STATE", "COUNTY", "TRACT", "year"]
-        + [col for col in df_merged.columns if col not in ["STATE", "COUNTY", "TRACT", "year"]]
+        + [
+            col
+            for col in df_merged.columns
+            if col not in ["STATE", "COUNTY", "TRACT", "year"]
+        ]
     ]
 
     # Now construct the fractions.
