@@ -49,3 +49,8 @@ $(JOINED_DATA): $(EVL_VENDOR_DATA) $(CENSUS_DATA)
 
 $(MOST_DATA): $(JOINED_DATA)
 	$(PYTHON) -m evldata.top -n $(TOP_N) -o $@ $<
+
+# A rule to make requirements.txt. Not part of the normal data build
+# process, but useful for maintenance if we add or update dependencies.
+requirements.txt: pyproject.toml poetry.lock
+	poetry export --without-hashes --format=requirements.txt > $@
