@@ -23,7 +23,7 @@ virtual environment via
 pip install -r ./requirements.txt
 ```
 
-During development we use (poetry)[https://python-poetry.org/] to manage dependencies
+During development we use [poetry](https://python-poetry.org/) to manage dependencies
 but we try to always keep the `requirements.txt` up to date.
 
 ## Generating the Data Set
