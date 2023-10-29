@@ -23,11 +23,11 @@ def data_for_year(year: int):
     # ethnicity table and also get the total variable.
     leaves_of_group = var.GROUP_HISPANIC_OR_LATINO_ORIGIN_BY_RACE
     variables = [
-                    var.MEDIAN_HOUSEHOLD_INCOME_FOR_RENTERS,
-                    var.VARIABLE_TOTAL_POPULATION,
-                    var.TOTAL_HISPANIC_OR_LATINO,
-                    var.VARIABLE_TOTAL_RENTERS,
-                ] + var.VARIABLES_FOR_RENTERS
+        var.MEDIAN_HOUSEHOLD_INCOME_FOR_RENTERS,
+        var.VARIABLE_TOTAL_POPULATION,
+        var.TOTAL_HISPANIC_OR_LATINO,
+        var.VARIABLE_TOTAL_RENTERS,
+    ] + var.VARIABLES_FOR_RENTERS
 
     df = ced.download(
         dataset,
@@ -39,7 +39,7 @@ def data_for_year(year: int):
         tract="*",
     )
 
-    df['year'] = year
+    df["year"] = year
 
     # Filter out the individual race counts under
     # the Hispanic and Latino side of the tree.
@@ -48,7 +48,7 @@ def data_for_year(year: int):
         + [col for col in df.columns if col <= var.TOTAL_HISPANIC_OR_LATINO]
         + [var.VARIABLE_TOTAL_RENTERS]
         + var.VARIABLES_FOR_RENTERS
-        ]
+    ]
 
     return df
 
@@ -79,14 +79,12 @@ def main():
     df_vendor = pd.read_csv(args.vendor, header=0, dtype={"fips": str, "cofips": str})
 
     # Data only goes back to 2009.
-    min_year = max(2009, df_vendor['year'].min())
-    max_year = df_vendor['year'].max()
+    min_year = max(2009, df_vendor["year"].min())
+    max_year = df_vendor["year"].max()
 
     logger.info(f"Loading census data from {min_year} to {max_year}")
 
-    df = pd.concat(
-        data_for_year(year) for year in range(min_year, max_year + 1)
-    )
+    df = pd.concat(data_for_year(year) for year in range(min_year, max_year + 1))
 
     output_path.parent.mkdir(exist_ok=True)
 
