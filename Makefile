@@ -25,7 +25,7 @@ JOINED_DATA := $(DATA_DIR)/evl_census.csv
 # List of the counties with the most data.
 MOST_DATA := $(DATA_DIR)/most_data.csv
 
-TOP_N := 100
+TOP_N := 200
 
 .PHONY: all clean
 

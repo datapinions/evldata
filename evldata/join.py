@@ -10,6 +10,28 @@ import evldata.variables as var
 logger = logging.getLogger(__name__)
 
 
+YEAR_TO_2018_DOLLARS = {
+    2009: 1.17322335,
+    2010: 1.15418227,
+    2011: 1.11891074,
+    2012: 1.09570370,
+    2013: 1.07970803,
+    2014: 1.06172840,
+    2015: 1.05990255,
+    2016: 1.04640634,
+    2017: 1.02437673,
+    2018: 1.00000000,
+}
+"""
+Map from year dollars to 2018 dollars.
+
+For example, One dollar in 2009 buys the same
+amount as $1.17 in 2018.
+
+Data derived from https://www2.census.gov/programs-surveys/demo/tables/p60/276/R_CPI_U_RS.xlsx
+"""
+
+
 def main():
     parser = ArgumentParser()
 
@@ -42,6 +64,16 @@ def main():
     logger.info(f"Reading vendor file `{args.vendor}`")
     df_vendor = pd.read_csv(args.vendor, header=0, dtype={"fips": str, "cofips": str})
 
+    # There are some rows in the vendor file where there is no useful
+    # information for us.
+    df_vendor = df_vendor[
+        ~(
+            df_vendor["filing_rate"].isna()
+            & df_vendor["threatened_rate"].isna()
+            & df_vendor["judgement_rate"].isna()
+        )
+    ]
+
     # Split up the fips in the vendor file.
     df_vendor["STATE"] = df_vendor["fips"].apply(lambda fips: fips[:2])
     df_vendor["COUNTY"] = df_vendor["fips"].apply(lambda fips: fips[2:5])
@@ -61,6 +93,15 @@ def main():
             if col not in ["STATE", "COUNTY", "TRACT", "year"]
         ]
     ]
+
+    # Adjust income for inflation.
+    df_merged[f"{var.MEDIAN_HOUSEHOLD_INCOME_FOR_RENTERS}_2018"] = df_merged[
+        ["year", var.MEDIAN_HOUSEHOLD_INCOME_FOR_RENTERS]
+    ].apply(
+        lambda row: row[var.MEDIAN_HOUSEHOLD_INCOME_FOR_RENTERS]
+        * YEAR_TO_2018_DOLLARS[row["year"]],
+        axis=1,
+    )
 
     # Now construct the fractions.
 

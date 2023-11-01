@@ -39,6 +39,10 @@ def main():
         input_path, header=0, dtype={"STATE": str, "COUNTY": str, "TRACT": str}
     ).rename({"cofips": "COFIPS"}, axis="columns")
 
+    # We don't have ACS5 data to merge with before this,
+    # so don't count them.
+    df = df[df["year"] >= 2009]
+
     counts = (
         df.groupby(["COFIPS", "STATE", "COUNTY"])["TRACT"]
         .count()
