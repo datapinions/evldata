@@ -61,7 +61,9 @@ The `Makefile` automates the following steps:
    a given year is not present in both downloaded data sets, 
    that tract and year combination does not appear in the final
    dataset.
-4. Compute fractional values for each of the census demographic fields.
+4. Compute inflation-adjusted median renter household income in
+   constant 2018 dollars.   
+5. Compute fractional values for each of the census demographic fields.
    For example, there is a field [`B25003B_003E`](https://api.census.gov/data/2018/acs/acs5/variables/B25003A_003E.html)
    in the census data that represents a count of the number of renters
    in a tract who identify as white and not Hispanic or Latino.
