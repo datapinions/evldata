@@ -5,7 +5,7 @@ from pathlib import Path
 import pandas as pd
 
 import evldata.variables as var
-
+from evldata.vendor import read_vendor_file
 
 logger = logging.getLogger(__name__)
 
@@ -62,17 +62,8 @@ def main():
     )
 
     logger.info(f"Reading vendor file `{args.vendor}`")
-    df_vendor = pd.read_csv(args.vendor, header=0, dtype={"fips": str, "cofips": str})
 
-    # There are some rows in the vendor file where there is no useful
-    # information for us.
-    df_vendor = df_vendor[
-        ~(
-            df_vendor["filing_rate"].isna()
-            & df_vendor["threatened_rate"].isna()
-            & df_vendor["judgement_rate"].isna()
-        )
-    ]
+    df_vendor = read_vendor_file(args.vendor)
 
     # Split up the fips in the vendor file.
     df_vendor["STATE"] = df_vendor["fips"].apply(lambda fips: fips[:2])

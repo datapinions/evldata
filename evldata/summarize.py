@@ -2,8 +2,7 @@ import logging
 from argparse import ArgumentParser
 from pathlib import Path
 
-import pandas as pd
-
+from evldata.vendor import read_vendor_file
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +30,10 @@ def main():
     output_path = Path(args.output)
 
     logger.info(f"Reading vendor file `{args.vendor}`")
-    df_vendor = pd.read_csv(args.vendor, header=0, dtype={"fips": str, "cofips": str})
+
+    vendor_file = args.vendor
+
+    df_vendor = read_vendor_file(vendor_file)
 
     # Note that we are not using any weights here. These probably should
     # be population weighted and use statsmodels.stats.weightstats.DescrStatsW

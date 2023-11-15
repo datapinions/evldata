@@ -2,9 +2,8 @@ import logging
 from argparse import ArgumentParser
 from pathlib import Path
 
-import pandas as pd
-
 import censusdis.data as ced
+import pandas as pd
 from censusdis.datasets import ACS5
 from censusdis.states import ALL_STATES_AND_DC
 
