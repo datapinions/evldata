@@ -36,7 +36,9 @@ def main():
     logger.info(f"Writing output file `{output_path}`")
 
     df = pd.read_csv(
-        input_path, header=0, dtype={"STATE": str, "COUNTY": str, "TRACT": str, 'cofips': str}
+        input_path,
+        header=0,
+        dtype={"STATE": str, "COUNTY": str, "TRACT": str, "cofips": str},
     ).rename({"cofips": "COFIPS"}, axis="columns")
 
     # We don't have ACS5 data to merge with before this,

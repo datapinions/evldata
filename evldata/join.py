@@ -7,7 +7,6 @@ import pandas as pd
 import evldata.variables as var
 from evldata.vendor import read_vendor_file
 
-
 logger = logging.getLogger(__name__)
 
 
